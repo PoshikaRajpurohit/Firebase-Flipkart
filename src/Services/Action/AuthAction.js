@@ -17,8 +17,6 @@ import { auth } from "./../../Firebase"
         type: "ERROR",
         payload: err
         }}
-
-
     export const signUpAsync = (data) => {
         return async (dispatch) => {
             try {
@@ -80,4 +78,9 @@ import { auth } from "./../../Firebase"
         return (dispatch) => {
         dispatch(signINSuc(user));
         };
+    
 }
+export const authCheckDone = () => ({
+  type: "AUTH_CHECK_DONE",
+});
+

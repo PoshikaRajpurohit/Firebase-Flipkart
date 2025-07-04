@@ -45,7 +45,7 @@ const Header = () => {
           </Form>
           <Nav className="ms-auto align-items-center  gap-2 mt-3 mt-lg-0">
             <Dropdown className="hover-dropdown">
-                 {user ? (
+                {user ? (
           <Dropdown className="hover-dropdown">
           <Dropdown.Toggle variant="white" id="user-dropdown" className="border-0 navbar">
           <FaUserCircle className="me-1" />
@@ -57,7 +57,7 @@ const Header = () => {
           </Dropdown.Item>
           <Dropdown.Divider />
               <Dropdown.Item>My Profile</Dropdown.Item>
-              <Dropdown.Item>Orders</Dropdown.Item>
+              <Dropdown.Item as={Link} to="/order" >Orders</Dropdown.Item>
               <Dropdown.Item>Wishlist</Dropdown.Item>
               <Dropdown.Item>Rewards</Dropdown.Item>
               <Dropdown.Item>Gift Cards</Dropdown.Item>

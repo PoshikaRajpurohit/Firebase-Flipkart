@@ -12,14 +12,15 @@ import { ToastContainer ,toast } from "react-toastify";
 
 const Home = () => {
   const { products = [], isLoading } = useSelector((state) => state.productReducer);
-  const { user } = useSelector((state) => state.authReducer);
+  const { user ,loading } = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate("/sign-in");
-    }
-  }, [user, navigate]);
+useEffect(() => {
+  if (!loading && !user) {
+    navigate("/sign-in");
+  }
+}, [loading, user, navigate]);
+
 
   useEffect(() => {
     if (products.length === 0) {
@@ -28,17 +29,18 @@ const Home = () => {
   }, [dispatch, products.length]);
 
 
- const handleAddToCart = (product) => {
-      if (!user) {
+const handleAddToCart = (product) => {
+  if (!user) {
     toast.warn("Please sign in to add products to cart.");
     setTimeout(() => {
       navigate("/sign-in");
     }, 2500); 
     return;
   }
-    dispatch(addToCartAsync(product, user));
-    toast.success("Product added to cart!");
-  };
+  dispatch(addToCartAsync(product, user));
+  toast.success("Product added to cart!");
+};
+
   const handleView = (id) => {
     navigate(`/view/${id}`);
   };

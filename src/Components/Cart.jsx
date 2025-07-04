@@ -9,8 +9,9 @@ import "../App.css";
 import { placeOrderAsync } from "../Services/Action/OrderAction";
 import { ToastContainer, toast } from "react-toastify";
 const Cart = () => {
-  const { cartItems, loading } = useSelector((state) => state.cartReducer);
-  const { user } = useSelector((state) => state.authReducer);
+  const { cartItems, loading: cartLoading } = useSelector((state) => state.cartReducer);
+const { user, loading: authLoading } = useSelector((state) => state.authReducer);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -19,11 +20,12 @@ const Cart = () => {
       dispatch(fetchCartAsync());
     }
   }, [user, dispatch]);
-  useEffect(() => {
-    if (!user) {
-      navigate("/sign-in");
-    }
-  }, [user, navigate]);
+ 
+useEffect(() => {
+  if (!authLoading && !user) {
+    navigate("/sign-in");
+  }
+}, [authLoading, user, navigate]);
   useEffect(() => {
     if (!showOrderModal && user) {
       dispatch(fetchCartAsync());
@@ -58,7 +60,7 @@ const Cart = () => {
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <Container>
         <Row>
-          {loading ? (
+          {authLoading ? (
             <div className="text-center my-5">
               <Spinner animation="border" variant="primary" />
             </div>

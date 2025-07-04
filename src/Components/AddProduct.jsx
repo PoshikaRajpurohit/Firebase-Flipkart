@@ -10,7 +10,7 @@ const AddProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isCreated, errorMsg } = useSelector((state) => state.productReducer);
-  const { user } = useSelector(state => state.authReducer);
+  const { user ,loading } = useSelector(state => state.authReducer);
   const initialState = {
     id: "",
     title: "",
@@ -28,8 +28,7 @@ const AddProduct = () => {
       [name]: value,
     }));
     setErrors((prev) => ({
-      ...prev,
-      image: "",
+      ...prev,   
       [name]: "",
     }));
   };
@@ -47,20 +46,22 @@ const AddProduct = () => {
     if (!image) newErrors.image = "Image URL is required.";
     return newErrors;
   };
-  
-  const handleFileUpload = async (e) => {
-    try {
-      const uploaded = await uploadImage(e.target.files[0]);
-      setInputForm((prev) => ({
-        ...prev,
-        image: uploaded,
-      }));
-      toast.success("Image uploaded successfully!");
-    } catch (error) {
-      toast.error("Image upload failed.");
-    }
-  };
-
+const handleFileUpload = async (e) => {
+  try {
+    const uploaded = await uploadImage(e.target.files[0]);
+    setInputForm((prev) => ({
+      ...prev,
+      image: uploaded,
+    }));
+    toast.success("Image uploaded successfully!");
+  } catch (error) {
+    toast.error("Image upload failed.");
+    setErrors((prev) => ({
+      ...prev,
+      image: "Image upload failed. Try again.",
+    }));
+  }
+};
   const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
@@ -73,7 +74,11 @@ const AddProduct = () => {
     const newProduct = { ...inputForm, id };
     dispatch(addNewProductAsync(newProduct));
   };
-
+  useEffect(() => {
+  if (!loading && !user) {
+    navigate("/sign-in");
+  }
+}, [loading, user, navigate]);
   useEffect(() => {
     if (isCreated) {
       setInputForm(initialState);
@@ -82,11 +87,7 @@ const AddProduct = () => {
       setTimeout(() => navigate("/"), 2500);
     }
   }, [isCreated, navigate]);
-    useEffect(() => {
-    if (!user) {
-      navigate("/sign-in");
-    }
-  }, [user, navigate]);
+  
 
   return (
     <Container className="d-flex justify-content-center align-items-center min-vh-100">

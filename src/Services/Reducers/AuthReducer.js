@@ -1,11 +1,13 @@
-const initalState = {
-    user: null,
-    isCreated: false,
-    isLogging: false,
-    errorMSG: ""
-}
+const initialState = {
+  user: null,
+  isCreated: false,
+  isLogging: false,
+  errorMSG: "",
+  loading: true, 
+};
 
-const authReducer = (state = initalState, action) => {
+
+const authReducer = (state = initialState, action) => {
     switch (action.type) {
         case "SIGN_UP_SUC":
             return {
@@ -29,7 +31,13 @@ const authReducer = (state = initalState, action) => {
         return {
             ...state,
             errorMSG: action.payload
-        }       
+        }
+        case "AUTH_CHECK_DONE":
+  return {
+    ...state,
+    loading: false,
+  };
+       
         default:
             return state;
     }
