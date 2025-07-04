@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import "../App.css";
 import { FaMoneyCheckAlt, FaRegCreditCard } from "react-icons/fa";
 import { GiBank } from "react-icons/gi";
+import { ToastContainer, toast } from "react-toastify";
 const Checkout = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -50,20 +51,27 @@ const Checkout = () => {
     }
     return newErrors;
   };
+
   const handleConfirmOrder = (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      toast.error("Please correct the form errors!");
       return;
     }
-    alert("🎉 Order placed successfully!");
-    navigate("/");
-  };
+
+    toast.success("🎉 Order placed successfully!");
+    setTimeout(() => {
+      navigate("/");
+    }, 2500);
+  };;
   const { name, address, pin, upiId, paymentMethod, cardNumber, expiry, cvv } = inputForm;
   if (!product) return null;
   return (
     <Container className="checkout-container py-5">
+       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <h3 className="checkout-heading mb-4">Checkout</h3>
       <Row>
         <Col md={6}>

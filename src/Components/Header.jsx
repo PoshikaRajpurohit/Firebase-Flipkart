@@ -45,31 +45,31 @@ const Header = () => {
           </Form>
           <Nav className="ms-auto align-items-center  gap-2 mt-3 mt-lg-0">
             <Dropdown className="hover-dropdown">
-                {user ? (
-      
+                 {user ? (
+          <Dropdown className="hover-dropdown">
           <Dropdown.Toggle variant="white" id="user-dropdown" className="border-0 navbar">
-            <FaUserCircle className="me-1" />
-            {user.displayName || user.email}
+          <FaUserCircle className="me-1" />
+          {user.displayName || user.email}
           </Dropdown.Toggle>
-        
-      ) : (
+          <Dropdown.Menu>
+          <Dropdown.Item as={Link} to="/sign-up">
+            New Customer? Sign Up
+          </Dropdown.Item>
+          <Dropdown.Divider />
+              <Dropdown.Item>My Profile</Dropdown.Item>
+              <Dropdown.Item>Orders</Dropdown.Item>
+              <Dropdown.Item>Wishlist</Dropdown.Item>
+              <Dropdown.Item>Rewards</Dropdown.Item>
+              <Dropdown.Item>Gift Cards</Dropdown.Item>
+              <Dropdown.Item onClick={handleLogout}>Log Out</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        ) : (
         <Link to="/sign-in" className="nav-link">
-          <FaUserCircle className="me-1" /> Login
+        <FaUserCircle className="me-1" /> Login
         </Link>
-      )}
-              <Dropdown.Menu>
-                <Dropdown.Item as={Link} to="/sign-up">
-                  New Customer? Sign Up
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item>My Profile</Dropdown.Item>
-                <Dropdown.Item as={Link} to="/order">Orders</Dropdown.Item>
-                <Dropdown.Item>Wishlist</Dropdown.Item>
-                <Dropdown.Item>Rewards</Dropdown.Item>
-                <Dropdown.Item>Gift Cards</Dropdown.Item>
-                <Dropdown.Item onClick={handleLogout}>Log Out</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+        )}
+        </Dropdown>
             <Nav.Link as={Link} to="/cart" className="position-relative navbar">
               <FaShoppingCart className="me-1" />
               <span>Cart</span>

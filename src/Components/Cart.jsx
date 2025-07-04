@@ -1,52 +1,61 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import {Container,Row,Col,Button,Image,Card,Spinner,Modal,} from "react-bootstrap";
-import {removeFromCartAsync,decrementQtyAsync,incrementQtyAsync,fetchCartAsync, clearCartAsync,} from "../Services/Action/CartAction";
+import { Container, Row, Col, Button, Image, Card, Spinner, Modal,} from "react-bootstrap";
+import { removeFromCartAsync, decrementQtyAsync, incrementQtyAsync, fetchCartAsync, clearCartAsync,} from "../Services/Action/CartAction";
 import emptyCart from "../assets/Images/empty.webp";
-import Success from "../assets/Images/SUCCESS.png"
+import Success from "../assets/Images/SUCCESS.png";
 import "../App.css";
 import { placeOrderAsync } from "../Services/Action/OrderAction";
+import { ToastContainer, toast } from "react-toastify";
 const Cart = () => {
   const { cartItems, loading } = useSelector((state) => state.cartReducer);
-  const { user } = useSelector((state) => state.authReducer); 
+  const { user } = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showOrderModal, setShowOrderModal] = useState(false);
- useEffect(() => {
-  if (user) {
-    dispatch(fetchCartAsync());
-  }
-  }, [user, dispatch]); 
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCartAsync());
+    }
+  }, [user, dispatch]);
   useEffect(() => {
     if (!user) {
       navigate("/sign-in");
     }
   }, [user, navigate]);
   useEffect(() => {
-  if (!showOrderModal && user) {
-    dispatch(fetchCartAsync());
-  }
-}, [showOrderModal, user]);
-
-  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const totalDiscount = cartItems.reduce((acc, item) => acc + item.quantity * 100, 0);
+    if (!showOrderModal && user) {
+      dispatch(fetchCartAsync());
+    }
+  }, [showOrderModal, user]);
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+  const totalDiscount = cartItems.reduce(
+    (acc, item) => acc + item.quantity * 100,
+    0
+  );
   const platformFee = 4;
   const finalAmount = totalAmount - totalDiscount + platformFee;
-const handlePlaceOrder = async () => {
-  if (user && cartItems.length > 0) {
-    await dispatch(placeOrderAsync(cartItems, user.uid));
-    await dispatch(clearCartAsync(user.uid));
-    setShowOrderModal(true);
-  }
-};
-
+  const handlePlaceOrder = async () => {
+    if (user && cartItems.length > 0) {
+      await dispatch(placeOrderAsync(cartItems, user.uid));
+      await dispatch(clearCartAsync(user.uid));
+      toast.success("Order placed successfully!");
+      setShowOrderModal(true);
+    } else {
+      toast.error("Cart is empty or user not logged in!");
+    }
+  };
   const handleModalClose = () => {
     setShowOrderModal(false);
     navigate("/");
   };
   return (
     <div className="cart-container py-5">
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <Container>
         <Row>
           {loading ? (
@@ -64,22 +73,29 @@ const handlePlaceOrder = async () => {
                       </Col>
                       <Col md={5}>
                         <Card.Body className="text-start">
-                          <Card.Title className="fw-semibold">{item.title}</Card.Title>
-                          <Card.Text className="text-muted">Seller: RetailMart</Card.Text>
+                          <Card.Title className="fw-semibold">
+                            {item.title}
+                          </Card.Title>
+                          <Card.Text className="text-muted">
+                            Seller: RetailMart
+                          </Card.Text>
                           <Card.Text className="text-success fw-bold fs-5">
                             ₹{item.price * item.quantity}
                           </Card.Text>
-                          <Card.Text className="text-muted">Delivery by Jun 25</Card.Text>
+                          <Card.Text className="text-muted">
+                            Delivery by Jun 25
+                          </Card.Text>
                         </Card.Body>
                       </Col>
                       <Col md={3} className="text-center my-3">
                         <div className="d-flex flex-column gap-2 align-items-center">
                           <div className="d-flex gap-2 align-items-center">
-                            <Button variant="outline-secondary" size="sm" onClick={() => dispatch(decrementQtyAsync(item.id))}>
-                              -
-                            </Button>
+                            <Button variant="outline-secondary" size="sm" onClick={() => {dispatch(decrementQtyAsync(item.id));
+                            toast.info("Quantity decreased");}}>
+                              -</Button>
                             <span className="fw-bold">{item.quantity}</span>
-                            <Button variant="outline-secondary" size="sm" onClick={() => dispatch(incrementQtyAsync(item.id))}>
+                            <Button variant="outline-secondary" size="sm" onClick={() => {dispatch(incrementQtyAsync(item.id));
+                            toast.info("Quantity increased");}}>
                               +
                             </Button>
                           </div>
@@ -87,8 +103,8 @@ const handlePlaceOrder = async () => {
                             <Button variant="link" className="text-dark fw-bold text-decoration-none">
                               SAVE FOR LATER
                             </Button>
-                            <Button variant="link" className="text-dark fw-bold text-decoration-none" onClick={() => 
-                            dispatch(removeFromCartAsync(item.id))}>
+                            <Button variant="link" className="text-dark fw-bold text-decoration-none" onClick={() =>
+                            {dispatch(removeFromCartAsync(item.id));toast.warn(`${item.title} removed from cart`);}}>
                               REMOVE
                             </Button>
                           </div>
@@ -103,7 +119,9 @@ const handlePlaceOrder = async () => {
                   <h5 className="mb-3">PRICE DETAILS</h5>
                   <hr />
                   <div className="d-flex justify-content-between mb-2">
-                    <span>Price ({cartItems.reduce((acc, item) => acc + item.quantity, 0)} items)</span>
+                    <span>
+                      Price ({cartItems.reduce((acc, item) => acc + item.quantity, 0)} items)
+                    </span>
                     <span>₹{totalAmount}</span>
                   </div>
                   <div className="d-flex justify-content-between mb-2 text-success">
@@ -134,8 +152,9 @@ const handlePlaceOrder = async () => {
                 <Image src={emptyCart} alt="Empty cart" className="emptycart-img" />
                 <h3 className="mt-2 fw-semibold">Your cart is empty!</h3>
                 <p className="text-muted mb-4">Add items to it now.</p>
-                <Button variant="primary" className="px-5 py-2 fw-semibold" onClick={() => navigate("/")}>
-                  Shop now</Button>
+                <Button variant="primary"className="px-5 py-2 fw-semibold"onClick={() => navigate("/")}>
+                  Shop now
+                </Button>
               </div>
             </Col>
           )}
@@ -146,7 +165,7 @@ const handlePlaceOrder = async () => {
           <Modal.Title>Order Successful 🎉</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
-          <Image src={Success} alt="Success" width="100" className="mb-3"/>
+          <Image src={Success} alt="Success" width="100" className="mb-3" />
           <p className="fw-semibold">Your order has been placed successfully!</p>
         </Modal.Body>
         <Modal.Footer>
@@ -158,7 +177,9 @@ const handlePlaceOrder = async () => {
     </div>
   );
 };
+
 export default Cart;
+
 
 
 

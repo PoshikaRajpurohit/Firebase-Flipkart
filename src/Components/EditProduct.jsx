@@ -4,10 +4,12 @@ import { Button, Container, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import {getProductAsync,updateProductAsync} from "../Services/Action/ProductAction";
 import { uploadImage } from "../Services/UploadImages";
+import { ToastContainer, toast } from "react-toastify";
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [submitted, setSubmitted] = useState(false);
   const { product, isUpdated, errorMsg } = useSelector((state) => state.productReducer);
   const initialState = {
     id: "",
@@ -23,8 +25,8 @@ const EditProduct = () => {
   const handleChanged = (e) => {
     const { name, value } = e.target;
     setInputForm({ ...inputForm, [name]: value });
-     if (e.target.files[0]) {
-      setFileName(e.target.files[0].name);
+     if (e.target.files) {
+      setFileName(e.target.files.name);
     } else {
       setFileName('No file chosen');
     }
@@ -41,39 +43,49 @@ const EditProduct = () => {
     if (!image) newErrors.image = "Image URL is required.";
     return newErrors;
   };
+  
   const handleFileUpload = async (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setFileName(file.name);
-    let image = await uploadImage(file);
-    setInputForm({
-      ...inputForm,
-      image: `${image}`,
-    });
-  }
-};
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length) {
-      setErrors(validationErrors);
-      return;
+    const file = e.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      try {
+        const image = await uploadImage(file);
+        setInputForm((prev) => ({ ...prev, image }));
+        toast.success("Image uploaded successfully!");
+      } catch (err) {
+        toast.error("Image upload failed!");
+      }
     }
-    dispatch(updateProductAsync({ ...inputForm, id }));
   };
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const validationErrors = validateForm();
+  if (Object.keys(validationErrors).length) {
+    setErrors(validationErrors);
+    toast.error("Please fix the form errors before submitting.");
+    return;
+  }
+  setSubmitted(true); 
+  dispatch(updateProductAsync({ ...inputForm, id }));
+};
+
   useEffect(() => {
     if (id) dispatch(getProductAsync(id));
   }, [id, dispatch]);
   useEffect(() => {
     if (product) setInputForm(product);
   }, [product]);
-  useEffect(() => {
-    if (isUpdated) {
-      navigate("/"); 
-    }
-  }, [isUpdated, navigate]);
+   useEffect(() => {
+  if (submitted && isUpdated) {
+    toast.success(" Product updated successfully!");
+    setTimeout(() => navigate("/"), 2000);
+  }
+}, [submitted, isUpdated, navigate]);
+
   return (
     <Container className="edit-container mt-5 p-4 shadow rounded bg-white" style={{ width: "700px" }}>
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <h2 className="text-primary fw-bold text-center mb-4">Edit Product</h2>
       <Form onSubmit={handleSubmit}>  
         <Form.Group className="mb-3">

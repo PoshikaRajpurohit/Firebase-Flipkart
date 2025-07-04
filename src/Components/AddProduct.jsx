@@ -5,6 +5,7 @@ import generateUniqueId from "generate-unique-id";
 import { useNavigate } from "react-router";
 import { addNewProductAsync } from "../Services/Action/ProductAction";
 import { uploadImage } from "../Services/UploadImages";
+import { ToastContainer, toast } from "react-toastify";
 const AddProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ const AddProduct = () => {
     }));
     setErrors((prev) => ({
       ...prev,
+      image: "",
       [name]: "",
     }));
   };
@@ -45,18 +47,26 @@ const AddProduct = () => {
     if (!image) newErrors.image = "Image URL is required.";
     return newErrors;
   };
-  const handleFileUpload = async(e) => {
-     let image = await uploadImage(e.target.files[0])
-     setInputForm({
-      ...inputForm,
-      image: `${image}`,
-    });
-  }
+  
+  const handleFileUpload = async (e) => {
+    try {
+      const uploaded = await uploadImage(e.target.files[0]);
+      setInputForm((prev) => ({
+        ...prev,
+        image: uploaded,
+      }));
+      toast.success("Image uploaded successfully!");
+    } catch (error) {
+      toast.error("Image upload failed.");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      toast.error("Please fix the form errors.");
       return;
     }
     const id = generateUniqueId({ length: 6, useLetters: false });
@@ -68,7 +78,8 @@ const AddProduct = () => {
     if (isCreated) {
       setInputForm(initialState);
       setErrors({});
-      navigate("/");
+      toast.success("🎉 Product added successfully!");
+      setTimeout(() => navigate("/"), 2500);
     }
   }, [isCreated, navigate]);
     useEffect(() => {
@@ -79,6 +90,7 @@ const AddProduct = () => {
 
   return (
     <Container className="d-flex justify-content-center align-items-center min-vh-100">
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <Card className="add-product-card w-100" style={{ maxWidth: "600px" }}>
         <h3 className="text-center text-primary mb-4 fw-bold">Add a New Product</h3>
         <Form onSubmit={handleSubmit}>

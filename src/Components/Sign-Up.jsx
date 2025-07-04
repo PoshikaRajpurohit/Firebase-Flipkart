@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom"; // ✅ fix import
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpAsync } from "../Services/Action/AuthAction";
 import '../App.css';
+import { ToastContainer, toast } from "react-toastify";
 
 const SignUP = () => {
   const navigate = useNavigate();
@@ -49,11 +50,13 @@ const SignUP = () => {
   };
   useEffect(() => {
     if (isCreated) {
-      navigate("/sign-in");
+      toast.success("Account created successfully");
+      setTimeout(() => navigate("/sign-in"), 1500);
     }
-  }, [isCreated]);
+  }, [isCreated, navigate]);
   return (
     <div className="sign-container">
+      <ToastContainer position="top-center" autoClose={2500} theme="colored" />
       <h1 className="sign-title">Sign Up</h1>
       {errorMSG && <p className="error-msg">{errorMSG}</p>}
       <Form onSubmit={handleSubmit} className="sign-form">

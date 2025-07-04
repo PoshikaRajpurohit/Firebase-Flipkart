@@ -8,12 +8,18 @@ import Banner from "./Banner";
 import CategoryMenu from "./Category";
 import "../App.css";
 import { FaShoppingCart, FaEdit, FaTrash } from "react-icons/fa";
+import { ToastContainer ,toast } from "react-toastify";
 
 const Home = () => {
   const { products = [], isLoading } = useSelector((state) => state.productReducer);
   const { user } = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/sign-in");
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -22,27 +28,34 @@ const Home = () => {
   }, [dispatch, products.length]);
 
 
-
-  const handleAddToCart = (product) => {
-    if (!user) {
+ const handleAddToCart = (product) => {
+      if (!user) {
+    toast.warn("Please sign in to add products to cart.");
+    setTimeout(() => {
       navigate("/sign-in");
-      return;
-    }
-    dispatch(addToCartAsync(product),user);
+    }, 2500); 
+    return;
+  }
+    dispatch(addToCartAsync(product, user));
+    toast.success("Product added to cart!");
   };
-
-
   const handleView = (id) => {
     navigate(`/view/${id}`);
   };
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
-  const handleDelete = (id) => {
-      dispatch(deleteProductAsync(id));  
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteProductAsync(id));
+      toast.success("Product deleted successfully!");
+    } catch (err) {
+      toast.error("Failed to delete product.");
+    }
   };
   return (
     <>
+    <ToastContainer position="top-center" autoClose={2500} theme="colored" />
       <CategoryMenu />
       <Banner />
       <Container fluid className="py-5 ">

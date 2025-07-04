@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row, Toast } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import glogo from "../assets/Images/google logo.png"
 import { googleSignInAsync, signINAsync } from "../Services/Action/AuthAction";
 import '../App.css'; 
+import { ToastContainer ,toast } from "react-toastify";
 const SignIN = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -46,13 +47,17 @@ const SignIN = () => {
   const handleGoogleLoginIN = () => {
     dispatch(googleSignInAsync());
   };
-  useEffect(() => {
+ useEffect(() => {
     if (user) {
-      navigate("/");
+      toast.success("Signed in successfully");
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
     }
-  }, [user]);
+  }, [user, navigate]);
   return (
     <div className="sign-container">
+      <ToastContainer position="top-center" autoClose={2500} theme="colored" />
       <h1 className="sign-title">Sign In</h1>
       {errorMSG && <p className="error-msg">{errorMSG}</p>}
       <Form onSubmit={handleSubmit} className="sign-form">
